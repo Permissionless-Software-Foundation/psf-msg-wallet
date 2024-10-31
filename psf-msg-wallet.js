@@ -18,6 +18,7 @@ import MsgSign from './src/commands/msg-sign.js'
 import MsgVerify from './src/commands/msg-verify.js'
 import MsgSendNostr from './src/commands/msg-send-nostr.js'
 import MsgCheckNostr from './src/commands/msg-check-nostr.js'
+import MsgReadNostr from './src/commands/msg-read-nostr.js'
 
 // Instantiate the subcommands
 const walletCreate = new WalletCreate()
@@ -31,6 +32,7 @@ const msgSign = new MsgSign()
 const msgVerify = new MsgVerify()
 const msgSendNostr = new MsgSendNostr()
 const msgCheckNostr = new MsgCheckNostr()
+const msgReadNostr = new MsgReadNostr()
 
 const program = new Command()
 
@@ -107,5 +109,11 @@ program.command('msg-check-nostr')
   .description('Check for new E2EE messages')
   .option('-n, --name <string>', 'wallet name to pay for message signal')
   .action(msgCheckNostr.run)
+
+program.command('msg-read-nostr')
+  .description('Read an E2EE message sent to your wallet, and stored on Nostr')
+  .option('-n, --name <string>', 'wallet name to pay for message signal')
+  .option('-t, --txid <string>', 'TXID of the message signal. Displayed by msg-check-nostr')
+  .action(msgReadNostr.run)
 
 program.parseAsync(process.argv)

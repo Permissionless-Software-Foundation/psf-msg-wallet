@@ -22,6 +22,7 @@
     "collect.js": "4.36.1",
     "commander": "12.1.0",
     "minimal-slp-wallet": "5.12.1",
+    "nostr": "0.2.8",
     "nostr-tools": "2.8.1",
     "shelljs": "0.8.5",
     "ws": "8.18.0"
