@@ -70,4 +70,16 @@ describe('#wallet-util', () => {
       }
     })
   })
+
+  describe('#instanceMsgLib', () => {
+    it('should throw an error if wallet is not specified', () => {
+      try {
+        uut.instanceMsgLib()
+
+        assert.fail('Unexpected code path')
+      } catch (err) {
+        assert.include(err.message, 'Must pass instance of minimal-slp-wallet.')
+      }
+    })
+  })
 })
