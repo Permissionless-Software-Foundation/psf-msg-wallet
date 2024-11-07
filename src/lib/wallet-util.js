@@ -6,6 +6,7 @@
 import { promises as fs } from 'fs'
 import { readFile } from 'fs/promises'
 import BchWallet from 'minimal-slp-wallet'
+import MsgLib from 'bch-message-lib'
 
 // Local libraries
 import config from '../../config/index.js'
@@ -19,9 +20,12 @@ class WalletUtil {
     this.fs = fs
     this.config = config
     this.BchWallet = BchWallet
+    this.MsgLib = MsgLib
 
     // Bind 'this' object to all subfunctions.
     this.saveWallet = this.saveWallet.bind(this)
+    this.instanceWallet = this.instanceWallet.bind(this)
+    this.instanceMsgLib = this.instanceMsgLib.bind(this)
   }
 
   // Save wallet data to a JSON file.
@@ -64,6 +68,17 @@ class WalletUtil {
       console.error('Error in wallet-util.js/instanceWallet()')
       throw err
     }
+  }
+
+  // Instantiate the bch-message-lib library with an instance of minimal-slp-wallet.
+  instanceMsgLib (wallet) {
+    if (!wallet) {
+      throw new Error('Must pass instance of minimal-slp-wallet.')
+    }
+
+    const msgLib = new this.MsgLib({ wallet })
+
+    return msgLib
   }
 }
 

@@ -12,12 +12,20 @@
   "author": "Chris Troutner",
   "license": "MIT",
   "dependencies": {
+    "@chris.troutner/retry-queue": "1.0.10",
+    "@noble/hashes": "1.5.0",
+    "base58-js": "2.0.0",
+    "bch-encrypt-lib": "2.1.1",
+    "bch-message-lib": "2.3.1",
     "bch-token-sweep": "2.2.1",
     "cli-table": "0.3.11",
     "collect.js": "4.36.1",
     "commander": "12.1.0",
     "minimal-slp-wallet": "5.12.1",
-    "shelljs": "0.8.5"
+    "nostr": "0.2.8",
+    "nostr-tools": "2.8.1",
+    "shelljs": "0.8.5",
+    "ws": "8.18.0"
   },
   "devDependencies": {
     "c8": "10.1.2",
