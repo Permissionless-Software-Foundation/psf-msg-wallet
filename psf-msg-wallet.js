@@ -107,7 +107,7 @@ program.command('msg-send-nostr')
 
 program.command('msg-check-nostr')
   .description('Check for new E2EE messages')
-  .option('-n, --name <string>', 'wallet name to pay for message signal')
+  .option('-n, --name <string>', 'wallet name to check for message signal')
   .action(msgCheckNostr.run)
 
 program.command('msg-read-nostr')
