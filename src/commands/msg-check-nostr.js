@@ -82,7 +82,7 @@ class MsgCheckNostr {
       // Get message signals from the blockchain.
       console.log(`cashAddress ${cashAddress}`)
       const messages = await this.msgLib.memo.readMsgSignal(cashAddress, 'MSG NOSTR')
-      console.log('message: ', messages)
+      // console.log('messages: ', messages)
 
       // Filter out sent messages, so user only sees recieved messages.
       const receiveMessages = this.filterMessages(cashAddress, messages)
