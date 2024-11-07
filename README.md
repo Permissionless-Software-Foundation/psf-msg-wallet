@@ -34,7 +34,7 @@ Check for new messages. If your address has recieved a message signal, the TXID 
 
 #### Send E2EE Message
 
-Send an end-to-end encrypted message to a BCH address. The 'subject' is not encrypted, but the message contents are.
+Send an end-to-end encrypted message to a BCH address. The 'subject' is not encrypted, but the message contents are. The receiver will need to have made at least one transaction with their address in order to send them a message. That way, their public key can be retrieved from the blockchain.
 
 - `node psf-msg-wallet.js msg-send-nostr -n wallet1 -s test -m "This is an encrypted message" -a bitcoincash:qqfrps47nxdvak55h3x97dqmglcaczegusma02uhqt`
 
