@@ -179,7 +179,7 @@ class MsgSendNostr {
       return eventId
     } catch (err) {
       console.error('Error in uploadToNostr()')
-      throw err
+      throw new Error(err.message)
     }
   }
 
