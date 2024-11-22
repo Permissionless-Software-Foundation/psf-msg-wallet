@@ -16,7 +16,7 @@ import SendTokens from './src/commands/send-tokens.js'
 import WalletSweep from './src/commands/wallet-sweep.js'
 import MsgSign from './src/commands/msg-sign.js'
 import MsgVerify from './src/commands/msg-verify.js'
-import MsgSendNostr from './src/commands/msg-send-nostr.js'
+import MsgNostrSend from './src/commands/msg-nostr-send.js'
 import MsgCheckNostr from './src/commands/msg-check-nostr.js'
 import MsgReadNostr from './src/commands/msg-read-nostr.js'
 
@@ -30,7 +30,7 @@ const sendTokens = new SendTokens()
 const walletSweep = new WalletSweep()
 const msgSign = new MsgSign()
 const msgVerify = new MsgVerify()
-const msgSendNostr = new MsgSendNostr()
+const msgNostrSend = new MsgNostrSend()
 const msgCheckNostr = new MsgCheckNostr()
 const msgReadNostr = new MsgReadNostr()
 
@@ -97,13 +97,13 @@ program.command('msg-verify')
   .option('-a, --addr <string>', 'BCH address generated from private key that signed the message')
   .action(msgVerify.run)
 
-program.command('msg-send-nostr')
+program.command('msg-nostr-send')
   .description('Send an E2EE message to a BCH address over Nostr')
   .option('-a, --addr <string>', 'BCH address to send message to')
   .option('-n, --name <string>', 'wallet name to pay for message signal')
   .option('-m, --msg <string>', 'Full message, which will be encrypted')
   .option('-s, --subject <string>', 'summary message, like in an email, sent as cleartext')
-  .action(msgSendNostr.run)
+  .action(msgNostrSend.run)
 
 program.command('msg-check-nostr')
   .description('Check for new E2EE messages')

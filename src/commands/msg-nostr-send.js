@@ -10,17 +10,10 @@
 
 // Global npm libraries
 import RetryQueue from '@chris.troutner/retry-queue'
-// import { base58_to_binary as base58ToBinary } from 'base58-js'
-// import { bytesToHex } from '@noble/hashes/utils'
-// import { finalizeEvent, getPublicKey } from 'nostr-tools/pure'
-// import { Relay, useWebSocketImplementation } from 'nostr-tools/relay'
-// import WebSocket from 'ws'
 import BchNostr from 'bch-nostr'
 
 // Local libraries
 import WalletUtil from '../lib/wallet-util.js'
-
-// useWebSocketImplementation(WebSocket)
 
 class MsgSendNostr {
   constructor () {
@@ -42,7 +35,6 @@ class MsgSendNostr {
     this.encryptMsgStr = this.encryptMsgStr.bind(this)
     this.uploadToNostr = this.uploadToNostr.bind(this)
     this.sendMsgSignal = this.sendMsgSignal.bind(this)
-    this.signalMessage = this.signalMessage.bind(this)
   }
 
   async run (flags) {
@@ -187,38 +179,6 @@ class MsgSendNostr {
     const { txid } = await this.bchNostr.signal.sendMsgSignal(sendObj)
 
     return { txid }
-  }
-
-  // Generate a PS001 signal message to write to the blockchain.
-  // https://github.com/Permissionless-Software-Foundation/specifications/blob/master/ps001-media-sharing.md
-  async signalMessage (eventId, bchAddress, subject) {
-    try {
-      if (!eventId || typeof eventId !== 'string') {
-        throw new Error('eventId must be a string')
-      }
-      if (!bchAddress || typeof bchAddress !== 'string') {
-        throw new Error('bchAddress must be a string')
-      }
-      if (!subject || typeof subject !== 'string') {
-        throw new Error('subject must be a string')
-      }
-
-      // Generate the hex transaction containing the PS001 message signal.
-      const txHex = await this.msgLib.memo.writeMsgSignalNostr(
-        eventId,
-        [bchAddress],
-        subject
-      )
-
-      if (!txHex) {
-        throw new Error('Could not build a hex transaction')
-      }
-
-      return txHex
-    } catch (error) {
-      console.log('Error in signalMessage')
-      throw error
-    }
   }
 }
 
