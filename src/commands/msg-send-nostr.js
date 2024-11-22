@@ -16,6 +16,7 @@ import { base58_to_binary as base58ToBinary } from 'base58-js'
 import { finalizeEvent, getPublicKey } from 'nostr-tools/pure'
 import { Relay, useWebSocketImplementation } from 'nostr-tools/relay'
 import WebSocket from 'ws'
+// import BchNostr from 'bch-nostr'
 
 // Local libraries
 import WalletUtil from '../lib/wallet-util.js'
@@ -43,7 +44,6 @@ class MsgSendNostr {
     this.createNostrPubKey = this.createNostrPubKey.bind(this)
     this.sendMsgSignal = this.sendMsgSignal.bind(this)
     this.signalMessage = this.signalMessage.bind(this)
-    this.encryptMsg = this.encryptMsg.bind(this)
   }
 
   async run (flags) {
@@ -124,17 +124,22 @@ class MsgSendNostr {
     try {
       const { addr, msg } = flags
 
-      // Get public Key for reciever from the blockchain.
-      // const pubKey = await this.walletService.getPubKey(bchAddress)
+      // Get public Key for reciever, from the blockchain.
       const publicKey = await this.retryQueue.addToQueue(this.bchWallet.getPubKey, addr)
-      // const publicKey = pubKey.pubkey.publicKey
-      console.log(`BCH Public Key: ${JSON.stringify(publicKey, null, 2)}`)
+      // console.log(`BCH Public Key: ${JSON.stringify(publicKey, null, 2)}`)
 
-      // Encrypt the message using the recievers public key.
-      const encryptedMsg = await this.encryptMsg(publicKey, msg)
-      console.log(`encryptedMsg: ${JSON.stringify(encryptedMsg, null, 2)}`)
+      // Convert the original message to a hex representation.
+      const buff = Buffer.from(msg)
+      const hex = buff.toString('hex')
 
-      return encryptedMsg
+      // Encrypt the hex string representing the message.
+      const encryptedStr = await this.encryptLib.encryption.encryptFile(
+        publicKey,
+        hex
+      )
+
+      // Return the encrypted hex string.
+      return encryptedStr
     } catch (err) {
       console.error('Error in encryptMsgStr()')
       throw err
@@ -248,33 +253,6 @@ class MsgSendNostr {
       return txHex
     } catch (error) {
       console.log('Error in signalMessage')
-      throw error
-    }
-  }
-
-  // Encrypt a message using encryptLib
-  async encryptMsg (pubKey, msg) {
-    try {
-      // Input validation
-      if (!pubKey || typeof pubKey !== 'string') {
-        throw new Error('pubKey must be a string')
-      }
-      if (!msg || typeof msg !== 'string') {
-        throw new Error('msg must be a string')
-      }
-
-      const buff = Buffer.from(msg)
-      const hex = buff.toString('hex')
-
-      const encryptedStr = await this.encryptLib.encryption.encryptFile(
-        pubKey,
-        hex
-      )
-      // console.log(`encryptedStr: ${JSON.stringify(encryptedStr, null, 2)}`)
-
-      return encryptedStr
-    } catch (error) {
-      console.log('Error in encryptMsg()')
       throw error
     }
   }
