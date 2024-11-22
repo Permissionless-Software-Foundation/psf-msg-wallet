@@ -10,22 +10,23 @@
 
 // Global npm libraries
 import RetryQueue from '@chris.troutner/retry-queue'
-import { base58_to_binary as base58ToBinary } from 'base58-js'
+// import { base58_to_binary as base58ToBinary } from 'base58-js'
 // import { bytesToHex } from '@noble/hashes/utils'
-import { finalizeEvent, getPublicKey } from 'nostr-tools/pure'
-import { Relay, useWebSocketImplementation } from 'nostr-tools/relay'
-import WebSocket from 'ws'
+// import { finalizeEvent, getPublicKey } from 'nostr-tools/pure'
+// import { Relay, useWebSocketImplementation } from 'nostr-tools/relay'
+// import WebSocket from 'ws'
 import BchNostr from 'bch-nostr'
 
 // Local libraries
 import WalletUtil from '../lib/wallet-util.js'
 
-useWebSocketImplementation(WebSocket)
+// useWebSocketImplementation(WebSocket)
 
 class MsgSendNostr {
   constructor () {
     // Encapsulate Dependencies
     this.walletUtil = new WalletUtil()
+    this.bchNostr = new BchNostr()
 
     const options = {
       concurrency: 1,
@@ -40,7 +41,6 @@ class MsgSendNostr {
     this.msgSend = this.msgSend.bind(this)
     this.encryptMsgStr = this.encryptMsgStr.bind(this)
     this.uploadToNostr = this.uploadToNostr.bind(this)
-    this.createNostrPubKey = this.createNostrPubKey.bind(this)
     this.sendMsgSignal = this.sendMsgSignal.bind(this)
     this.signalMessage = this.signalMessage.bind(this)
   }
@@ -95,7 +95,7 @@ class MsgSendNostr {
     return true
   }
 
-  // Orchestration function
+  // Primary, orchestration function
   async msgSend (flags) {
     try {
       // Encrypt the message with the receivers public key.
@@ -106,7 +106,8 @@ class MsgSendNostr {
 
       // Broadcast a PS001 signal on the blockchain, to signal the recipient
       // that they have a message waiting.
-      const txid = await this.sendMsgSignal(flags, eventId)
+      flags.eventId = eventId
+      const { txid } = await this.sendMsgSignal(flags)
 
       return { txid, eventId }
     } catch (err) {
@@ -149,34 +150,21 @@ class MsgSendNostr {
     try {
       const { encryptedStr } = inObj
 
-      // Generate a Nostr pub key from the private key of this wallet.
-      const { privKeyBuf, nostrPubKey } = this.createNostrPubKey()
-      console.log('nostrPubKey: ', nostrPubKey)
+      // Generate nostr private and public keys from the BCH wallet private key.
+      const wif = this.bchWallet.walletInfo.privateKey
+      const { privKeyBuf, nostrPubKey } = this.bchNostr.keys.createNostrPubKeyFromWif({ wif })
 
-      const psfRelay = 'wss://nostr-relay.psfoundation.info'
+      const relayWs = 'wss://nostr-relay.psfoundation.info'
 
-      // Generate a Nostr post.
-      const eventTemplate = {
-        kind: 1,
-        created_at: Math.floor(Date.now() / 1000),
-        tags: [],
-        content: encryptedStr
+      const uploadObj = {
+        privKeyBuf,
+        nostrPubKey,
+        relayWs,
+        msg: encryptedStr
       }
 
-      // Sign the post
-      const signedEvent = finalizeEvent(eventTemplate, privKeyBuf)
-      // console.log('signedEvent: ', signedEvent)
-      const eventId = signedEvent.id
-
-      // Connect to a relay.
-      const relay = await Relay.connect(psfRelay)
-      console.log(`connected to ${relay.url}`)
-
-      // Publish the message to the relay.
-      await relay.publish(signedEvent)
-
-      // Close the connection to the relay.
-      relay.close()
+      // Upload the encrypted message to Nostr
+      const eventId = await this.bchNostr.post.uploadToNostr(uploadObj)
 
       return eventId
     } catch (err) {
@@ -185,41 +173,20 @@ class MsgSendNostr {
     }
   }
 
-  // Generate a Nostr pubkey from the private key for this wallet.
-  createNostrPubKey () {
-    const wif = this.bchWallet.walletInfo.privateKey
-    // console.log('wif: ', wif)
-
-    // Extract the privaty key from the WIF, using this guide:
-    // https://learnmeabitcoin.com/technical/keys/private-key/wif/
-    const wifBuf = base58ToBinary(wif)
-    const privKeyBuf = wifBuf.slice(1, 33)
-
-    // const privKeyHex = bytesToHex(privKeyBuf)
-
-    const nostrPubKey = getPublicKey(privKeyBuf)
-
-    return { privKeyBuf, nostrPubKey }
-  }
-
   // Generate and broadcast a PS001 message signal.
-  async sendMsgSignal (flags, eventId) {
-    const { addr, subject } = flags
+  async sendMsgSignal (inObj) {
+    const { addr, subject, eventId } = inObj
 
-    // Wait a couple seconds to let the indexer update its UTXO state.
-    await this.bchWallet.bchjs.Util.sleep(2000)
+    // Create and broadcast a message signal on the BCH blockchain.
+    const sendObj = {
+      wallet: this.bchWallet,
+      addr,
+      subject,
+      eventId
+    }
+    const { txid } = await this.bchNostr.signal.sendMsgSignal(sendObj)
 
-    // Update the UTXO store in the wallet.
-    await this.bchWallet.getUtxos()
-
-    // Sign Message
-    const txHex = await this.signalMessage(eventId, addr, subject)
-
-    // Broadcast Transaction
-    const txidStr = await this.bchWallet.ar.sendTx(txHex)
-    console.log(`Signal Transaction ID : ${JSON.stringify(txidStr, null, 2)}`)
-
-    return txidStr
+    return { txid }
   }
 
   // Generate a PS001 signal message to write to the blockchain.
