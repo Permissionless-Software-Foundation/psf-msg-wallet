@@ -15,7 +15,7 @@ import BchNostr from 'bch-nostr'
 // Local libraries
 import WalletUtil from '../lib/wallet-util.js'
 
-class MsgSendNostr {
+class MsgNostrSend {
   constructor () {
     // Encapsulate Dependencies
     this.walletUtil = new WalletUtil()
@@ -182,4 +182,4 @@ class MsgSendNostr {
   }
 }
 
-export default MsgSendNostr
+export default MsgNostrSend

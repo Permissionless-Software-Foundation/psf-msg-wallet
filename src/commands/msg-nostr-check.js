@@ -19,7 +19,7 @@ import Table from 'cli-table'
 
 // useWebSocketImplementation(WebSocket)
 
-class MsgCheckNostr {
+class MsgNostrCheck {
   constructor () {
     // Encapsulate Dependencies
     this.walletUtil = new WalletUtil()
@@ -147,4 +147,4 @@ class MsgCheckNostr {
   }
 }
 
-export default MsgCheckNostr
+export default MsgNostrCheck
