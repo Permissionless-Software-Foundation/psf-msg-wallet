@@ -10,13 +10,12 @@
 
 // Global npm libraries
 import RetryQueue from '@chris.troutner/retry-queue'
-import EncryptLib from 'bch-encrypt-lib'
 import { base58_to_binary as base58ToBinary } from 'base58-js'
 // import { bytesToHex } from '@noble/hashes/utils'
 import { finalizeEvent, getPublicKey } from 'nostr-tools/pure'
 import { Relay, useWebSocketImplementation } from 'nostr-tools/relay'
 import WebSocket from 'ws'
-// import BchNostr from 'bch-nostr'
+import BchNostr from 'bch-nostr'
 
 // Local libraries
 import WalletUtil from '../lib/wallet-util.js'
@@ -58,20 +57,18 @@ class MsgSendNostr {
       this.msgLib = this.walletUtil.instanceMsgLib(this.bchWallet)
 
       // Initialize the encryption library.
-      // To-Do: Move this instantiation to the walletUtil library.
-      this.encryptLib = new EncryptLib({ bchjs: this.bchWallet.bchjs })
+      this.encryptLib = this.walletUtil.instanceEncryptLib({ bchjs: this.bchWallet.bchjs })
 
-      // Sweep any BCH and tokens from the private key.
-      const txid = await this.msgSend(flags)
+      // Send the message. (Primary orchestration function)
+      const { txid, eventId } = await this.msgSend(flags)
 
-      console.log(`BCH successfully swept from private key ${flags.wif}`)
-      console.log(`TXID: ${txid}`)
-      console.log('\nView this transaction on a block explorer:')
-      console.log(`https://bch.loping.net/tx/${txid}`)
+      console.log('Message sent successfully!')
+      console.log(`Message signal TXID: ${txid}`)
+      console.log(`Encrypted message uploaded as Nostr event ID: ${eventId}`)
 
       return true
     } catch (err) {
-      console.error('Error in send-bch: ', err)
+      console.error('Error in msg-nostr-send: ', err)
       return 0
     }
   }
@@ -111,7 +108,7 @@ class MsgSendNostr {
       // that they have a message waiting.
       const txid = await this.sendMsgSignal(flags, eventId)
 
-      return txid
+      return { txid, eventId }
     } catch (err) {
       console.error('Error in msgSend()')
       throw err
