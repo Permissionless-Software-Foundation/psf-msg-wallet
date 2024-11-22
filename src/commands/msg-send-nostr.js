@@ -104,7 +104,7 @@ class MsgSendNostr {
       // Encrypt the message with the receivers public key.
       const encryptedStr = await this.encryptMsgStr(flags)
 
-      const eventId = await this.uploadToNostr({ encryptedStr })
+      const eventId = await this.retryQueue.addToQueue(this.uploadToNostr, { encryptedStr })
       console.log('Encrypted message uploaded to Nostr with post event ID: ', eventId)
 
       // Broadcast a PS001 signal on the blockchain, to signal the recipient
@@ -179,7 +179,7 @@ class MsgSendNostr {
       return eventId
     } catch (err) {
       console.error('Error in uploadToNostr()')
-      throw err
+      throw new Error(err.message)
     }
   }
 
