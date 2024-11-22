@@ -6,23 +6,17 @@
 
 // Global npm libraries
 // import RetryQueue from '@chris.troutner/retry-queue'
-import EncryptLib from 'bch-encrypt-lib'
+import BchNostr from 'bch-nostr'
+import Table from 'cli-table'
 
 // Local libraries
 import WalletUtil from '../lib/wallet-util.js'
-// import { base58_to_binary as base58ToBinary } from 'base58-js'
-// import { bytesToHex } from '@noble/hashes/utils'
-// import { finalizeEvent, getPublicKey } from 'nostr-tools/pure'
-// import { Relay, useWebSocketImplementation } from 'nostr-tools/relay'
-// import WebSocket from 'ws'
-import Table from 'cli-table'
-
-// useWebSocketImplementation(WebSocket)
 
 class MsgNostrCheck {
   constructor () {
     // Encapsulate Dependencies
     this.walletUtil = new WalletUtil()
+    this.bchNostr = new BchNostr()
 
     // const options = {
     //   concurrency: 1,
@@ -35,7 +29,6 @@ class MsgNostrCheck {
     this.run = this.run.bind(this)
     this.validateFlags = this.validateFlags.bind(this)
     this.msgCheck = this.msgCheck.bind(this)
-    this.filterMessages = this.filterMessages.bind(this)
     this.displayTable = this.displayTable.bind(this)
   }
 
@@ -51,8 +44,7 @@ class MsgNostrCheck {
       this.msgLib = this.walletUtil.instanceMsgLib(this.bchWallet)
 
       // Initialize the encryption library.
-      // To-Do: Move this instantiation to the walletUtil library.
-      this.encryptLib = new EncryptLib({ bchjs: this.bchWallet.bchjs })
+      // this.encryptLib = this.walletUtil.instanceEncryptLib({ bchjs: this.bchWallet.bchjs })
 
       // Check for new message signals on the blockchain.
       await this.msgCheck(flags)
@@ -79,50 +71,22 @@ class MsgNostrCheck {
     try {
       const cashAddress = this.bchWallet.walletInfo.cashAddress
 
-      // Get message signals from the blockchain.
-      console.log(`cashAddress ${cashAddress}`)
-      const messages = await this.msgLib.memo.readMsgSignal(cashAddress, 'MSG NOSTR')
-      // console.log('messages: ', messages)
-
-      // Filter out sent messages, so user only sees recieved messages.
-      const receiveMessages = this.filterMessages(cashAddress, messages)
-      if (!receiveMessages.length) {
-        console.log('No Messages Found!')
-        return false
+      const checkObj = {
+        wallet: this.bchWallet,
+        addr: cashAddress,
+        limit: 5
       }
 
+      const msgs = await this.bchNostr.signal.checkMsgs(checkObj)
+
       // Display the messages on the screen.
-      this.displayTable(receiveMessages)
+      // this.displayTable(receiveMessages)
+      this.displayTable(msgs)
 
       return true
     } catch (err) {
       console.error('Error in msgCheck()')
       throw err
-    }
-  }
-
-  // Ignores send messages
-  // returns only received messages
-  filterMessages (bchAddress, messages) {
-    try {
-      if (!bchAddress || typeof bchAddress !== 'string') {
-        throw new Error('bchAddress must be a string.')
-      }
-      if (!Array.isArray(messages)) {
-        throw new Error('messages must be an array.')
-      }
-      const filtered = []
-
-      for (let i = 0; i < messages.length; i++) {
-        const message = messages[i]
-        if (message.sender !== bchAddress) {
-          filtered.push(message)
-        }
-      }
-      return filtered
-    } catch (error) {
-      console.log('Error in filterMessages()')
-      throw error
     }
   }
 
