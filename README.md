@@ -26,7 +26,7 @@ This fork retains all the commands available in [psf-bch-wallet](https://github.
 
 Check for new messages. If your address has recieved a message signal, the TXID of the message signal will be displayed. You'll need that TXID to download the message for decrypting and reading.
 
-- `node psf-msg-wallet.js msg-check-nostr -n wallet1`
+- `node psf-msg-wallet.js msg-nostr-check -n wallet1`
 
 ##### Arguments
 - `-n` - flag to give your wallet name, to check for message signals sent to your address.
@@ -36,7 +36,7 @@ Check for new messages. If your address has recieved a message signal, the TXID 
 
 Send an end-to-end encrypted message to a BCH address. The 'subject' is not encrypted, but the message contents are. The receiver will need to have made at least one transaction with their address in order to send them a message. That way, their public key can be retrieved from the blockchain.
 
-- `node psf-msg-wallet.js msg-send-nostr -n wallet1 -s test -m "This is an encrypted message" -a bitcoincash:qqfrps47nxdvak55h3x97dqmglcaczegusma02uhqt`
+- `node psf-msg-wallet.js msg-nostr-send -n wallet1 -s test -m "This is an encrypted message" -a bitcoincash:qqfrps47nxdvak55h3x97dqmglcaczegusma02uhqt`
 
 ##### Arguments
 - `-n` - flag to specify the wallet paying for the message signal (required).
@@ -49,7 +49,7 @@ Send an end-to-end encrypted message to a BCH address. The 'subject' is not encr
 
 Download an E2EE message from a Nostr relay, and decrypt it using the private key from your wallet.
 
-- `node psf-msg-wallet.js msg-read-nostr -n wallet1 -t e7537fbeebb367e09793286f636ec6a4a0b04ba556ec90691b5e0107d18cc5cb`
+- `node psf-msg-wallet.js msg-nostr-read -n wallet1 -t e7537fbeebb367e09793286f636ec6a4a0b04ba556ec90691b5e0107d18cc5cb`
 
 ##### Arguments
 

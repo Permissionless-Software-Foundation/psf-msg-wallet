@@ -7,6 +7,7 @@ import { promises as fs } from 'fs'
 import { readFile } from 'fs/promises'
 import BchWallet from 'minimal-slp-wallet'
 import MsgLib from 'bch-message-lib'
+import EncryptLib from 'bch-encrypt-lib'
 
 // Local libraries
 import config from '../../config/index.js'
@@ -26,6 +27,7 @@ class WalletUtil {
     this.saveWallet = this.saveWallet.bind(this)
     this.instanceWallet = this.instanceWallet.bind(this)
     this.instanceMsgLib = this.instanceMsgLib.bind(this)
+    this.instanceEncryptLib = this.instanceEncryptLib.bind(this)
   }
 
   // Save wallet data to a JSON file.
@@ -79,6 +81,19 @@ class WalletUtil {
     const msgLib = new this.MsgLib({ wallet })
 
     return msgLib
+  }
+
+  // Instantiate the
+  instanceEncryptLib (inObj = {}) {
+    const { bchjs } = inObj
+
+    if (!bchjs) {
+      throw new Error('Must pass instance of bch-js when instatiating bch-encrypt-lib')
+    }
+
+    const encryptLib = new EncryptLib({ bchjs })
+
+    return encryptLib
   }
 }
 
