@@ -4,9 +4,9 @@
 
 // Global npm libraries
 import RetryQueue from '@chris.troutner/retry-queue'
-import EncryptLib from 'bch-encrypt-lib'
 import Nostr from 'nostr'
 import { bytesToHex } from '@noble/hashes/utils'
+import BchNostr from 'bch-nostr'
 
 // Local libraries
 import WalletUtil from '../lib/wallet-util.js'
@@ -17,6 +17,7 @@ class MsgReadNostr {
     this.walletUtil = new WalletUtil()
     this.RelayPool = Nostr.RelayPool
     this.bytesToHex = bytesToHex
+    this.bchNostr = new BchNostr()
 
     const options = {
       concurrency: 1,
@@ -31,6 +32,7 @@ class MsgReadNostr {
     this.msgRead = this.msgRead.bind(this)
     this.getSenderFromTx = this.getSenderFromTx.bind(this)
     this.getAndDecrypt = this.getAndDecrypt.bind(this)
+    this.decryptMsg = this.decryptMsg.bind(this)
   }
 
   async run (flags) {
@@ -45,14 +47,18 @@ class MsgReadNostr {
       this.msgLib = this.walletUtil.instanceMsgLib(this.bchWallet)
 
       // Initialize the encryption library.
-      // To-Do: Move this instantiation to the walletUtil library.
-      this.encryptLib = new EncryptLib({ bchjs: this.bchWallet.bchjs })
+      this.encryptLib = this.walletUtil.instanceEncryptLib({ bchjs: this.bchWallet.bchjs })
 
+      // Get the sender and encrypted message.
       const { sender, message } = await this.msgRead(flags)
-      console.log(`Sender: ${sender}`)
-      console.log(`Message:\n${message}`)
 
-      return message
+      // Decrypt the message
+      const clearMsg = await this.decryptMsg({ encryptedMsgHex: message })
+
+      console.log(`Sender: ${sender}`)
+      console.log(`Message:\n${clearMsg}`)
+
+      return clearMsg
     } catch (err) {
       console.error('Error in send-bch: ', err)
       return 0
@@ -80,20 +86,27 @@ class MsgReadNostr {
     try {
       const { txid } = flags
 
+      // Retrieve the encrypted message from the Nostr relay.
+      const readObj = {
+        txid,
+        wallet: this.bchWallet
+      }
+      const { message, sender } = await this.bchNostr.read.getNostrMsgFromTxid(readObj)
+
       // Get TX Data
-      const txDataResult = await this.bchWallet.getTxData([txid])
-      const txData = txDataResult[0]
-      // console.log(`txData: ${JSON.stringify(txData, null, 2)}`)
-
-      const sender = this.getSenderFromTx(txData)
-      // console.log('sender: ', sender)
-
-      // get the Nostr eventId from tx OP_RETURN
-      const eventId = this.getEventIdFromTx(txData)
-      console.log(`Nostr Event ID: ${eventId}`)
-
-      // Get the encrypted message from Nostr and decrypt it.
-      const message = await this.getAndDecrypt(eventId)
+      // const txDataResult = await this.bchWallet.getTxData([txid])
+      // const txData = txDataResult[0]
+      // // console.log(`txData: ${JSON.stringify(txData, null, 2)}`)
+      //
+      // const sender = this.getSenderFromTx(txData)
+      // // console.log('sender: ', sender)
+      //
+      // // get the Nostr eventId from tx OP_RETURN
+      // const eventId = this.getEventIdFromTx(txData)
+      // console.log(`Nostr Event ID: ${eventId}`)
+      //
+      // // Get the encrypted message from Nostr and decrypt it.
+      // const message = await this.getAndDecrypt(eventId)
 
       return { sender, message }
     } catch (error) {
@@ -191,6 +204,28 @@ class MsgReadNostr {
     // console.log('Message :', decryptedMsg)
 
     return decryptedMsg
+  }
+
+  // Decrypt the message using the BCH wallet private key.
+  async decryptMsg (inObj = {}) {
+    try {
+      const { encryptedMsgHex } = inObj
+
+      // decrypt message
+      const messageHex = await this.encryptLib.encryption.decryptFile(
+        this.bchWallet.walletInfo.privateKey,
+        encryptedMsgHex
+      )
+
+      const buf = Buffer.from(messageHex, 'hex')
+      const decryptedMsg = buf.toString('utf8')
+      // console.log('Message :', decryptedMsg)
+
+      return decryptedMsg
+    } catch (err) {
+      console.error('Error in decryptFile(): ', err)
+      throw err
+    }
   }
 }
 
