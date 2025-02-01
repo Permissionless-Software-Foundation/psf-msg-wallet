@@ -11,7 +11,10 @@ const config = {
 
   // consumer-api = web 3 Cash Stack (ipfs-bch-wallet-consumer)
   // rest-api = web 2 Cash Stack (bch-api)
-  interface: 'consumer-api'
+  interface: 'consumer-api',
+
+  // File Staging URL
+  fileStagingURL: 'https://file-stage.fullstack.cash'
 }
 
 export default config
