@@ -18,7 +18,9 @@ This software requires node.js v20 or higher. Instructions for installation:
 
 - `node psf-msg-wallet.js help`
 
-### Wallet Commands
+-----
+
+### Message Commands
 
 This fork retains all the commands available in [psf-bch-wallet](https://github.com/Permissionless-Software-Foundation/psf-bch-wallet). Check that README for additional commands.
 
@@ -59,6 +61,10 @@ Download an E2EE message from a Nostr relay, and decrypt it using the private ke
 
 - `-n` - specify the wallet to check for messages (required).
 - `-t` - The TXID of the message signal. This is provided by the `msg-check-nostr` command.
+
+-----
+
+### File Commands
 
 #### Stage a File for Pinning
 
