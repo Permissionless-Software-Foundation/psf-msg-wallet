@@ -8,6 +8,7 @@ import { readFile } from 'fs/promises'
 import BchWallet from 'minimal-slp-wallet'
 import MsgLib from 'bch-message-lib'
 import EncryptLib from 'bch-encrypt-lib'
+import PSFFPP from 'psffpp'
 
 // Local libraries
 import config from '../../config/index.js'
@@ -28,6 +29,7 @@ class WalletUtil {
     this.instanceWallet = this.instanceWallet.bind(this)
     this.instanceMsgLib = this.instanceMsgLib.bind(this)
     this.instanceEncryptLib = this.instanceEncryptLib.bind(this)
+    this.instancePsffpp = this.instancePsffpp.bind(this)
   }
 
   // Save wallet data to a JSON file.
@@ -94,6 +96,13 @@ class WalletUtil {
     const encryptLib = new EncryptLib({ bchjs })
 
     return encryptLib
+  }
+
+  // Instantiate the PSFFPP library.
+  instancePsffpp (wallet) {
+    const psffpp = new PSFFPP({ wallet })
+
+    return psffpp
   }
 }
 

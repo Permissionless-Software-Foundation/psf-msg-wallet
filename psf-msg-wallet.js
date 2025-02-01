@@ -20,6 +20,7 @@ import MsgNostrSend from './src/commands/msg-nostr-send.js'
 import MsgNostrCheck from './src/commands/msg-nostr-check.js'
 import MsgNostrRead from './src/commands/msg-nostr-read.js'
 import FileStage from './src/commands/file-stage.js'
+import FilePin from './src/commands/file-pin.js'
 // Instantiate the subcommands
 const walletCreate = new WalletCreate()
 const walletList = new WalletList()
@@ -34,6 +35,7 @@ const msgNostrSend = new MsgNostrSend()
 const msgNostrCheck = new MsgNostrCheck()
 const msgNostrRead = new MsgNostrRead()
 const fileStage = new FileStage()
+const filePin = new FilePin()
 const program = new Command()
 
 program
@@ -120,5 +122,13 @@ program.command('file-stage')
   .description('Upload and stage a file for pinning to the PSFFPP network')
   .option('-f, --filePath <string>', 'full path to file to be uploaded')
   .action(fileStage.run)
+
+program.command('file-pin')
+  .description('Redundently pin a staged file across the PSFFPP network')
+  .option('-n, --name <string>', 'wallet name to pay for message signal')
+  .option('-c, --cid <string>', 'CID of the file to be pinned')
+  .option('-s, --size <string>', 'File size in MB. Use 1 for files less than 1MB.')
+  .option('-f, --filename <string>', 'Name and extension of the file to be pinned')
+  .action(filePin.run)
 
 program.parseAsync(process.argv)

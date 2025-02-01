@@ -23,15 +23,24 @@ class FileStage {
     this.run = this.run.bind(this)
     this.validateFlags = this.validateFlags.bind(this)
     this.uploadFile = this.uploadFile.bind(this)
+    this.getFileSize = this.getFileSize.bind(this)
   }
 
   async run (flags) {
     try {
       this.validateFlags(flags)
 
+      // Get the size of the file.
+      const fileSize = await this.getFileSize(flags)
+
+      if (fileSize > 100) {
+        throw new Error('File size must be less than 100MB.')
+      }
+
       const cid = await this.uploadFile(flags)
 
       console.log(`File uploaded successfully. CID:\n${cid}`)
+      console.log(`File size: ${fileSize} MB`)
 
       return true
     } catch (err) {
@@ -50,7 +59,7 @@ class FileStage {
     return true
   }
 
-  async uploadFile (flags) {
+  async uploadFile (flags = {}) {
     try {
       const { filePath } = flags
       console.log('Uploading file: ', filePath)
@@ -81,6 +90,29 @@ class FileStage {
     } catch (err) {
       console.error('Error in uploadFile: ', err)
       return false
+    }
+  }
+
+  // Returns the size of the file in Megabytes.
+  async getFileSize (flags = {}) {
+    try {
+      const { filePath } = flags
+
+      const stats = fs.statSync(filePath)
+      const fileSizeInBytes = stats.size
+      let fileSizeInMegabytes = fileSizeInBytes / (1024 * 1024)
+
+      // Round the file size to two decimal points
+      fileSizeInMegabytes = fileSizeInMegabytes * 100
+      fileSizeInMegabytes = Math.ceil(fileSizeInMegabytes)
+      fileSizeInMegabytes = fileSizeInMegabytes / 100
+
+      // console.log(`File ${filePath} is ${fileSizeInMegabytes} MB.`)
+
+      return fileSizeInMegabytes
+    } catch (err) {
+      console.error('Error in getFileSize()')
+      throw err
     }
   }
 }

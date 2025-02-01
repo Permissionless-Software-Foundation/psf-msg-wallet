@@ -14,6 +14,8 @@ const config = {
   interface: 'consumer-api',
 
   // File Staging URL
+  // Any server running an instance of the ipfs-file-stager app.
+  // https://github.com/Permissionless-Software-Foundation/ipfs-file-stager
   fileStagingURL: 'https://file-stage.fullstack.cash'
 }
 
