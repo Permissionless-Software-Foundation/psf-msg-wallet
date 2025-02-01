@@ -46,8 +46,9 @@ class FileStage {
         fileSizeInMegabytes: parseInt(flags.size)
       }
       const { pobTxid, claimTxid } = await this.psffpp.createPinClaim(pinObj)
-      console.log('pobTxid: ', pobTxid)
-      console.log('claimTxid: ', claimTxid)
+      console.log(`pobTxid: https://bch.loping.net/tx/${pobTxid}`)
+      console.log(`claimTxid: https://bch.loping.net/tx/${claimTxid}`)
+      console.log(`Check pinning status: https://pin.fullstack.cash/ipfs/pin-status/${flags.cid}`)
 
       return true
     } catch (err) {
