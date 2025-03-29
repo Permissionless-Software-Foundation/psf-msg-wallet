@@ -24,6 +24,8 @@ This software requires node.js v20 or higher. Instructions for installation:
 
 This fork retains all the commands available in [psf-bch-wallet](https://github.com/Permissionless-Software-Foundation/psf-bch-wallet). Check that README for additional commands.
 
+-----
+
 #### Check For New Messages
 
 Check for new messages. If your address has recieved a message signal, the TXID of the message signal will be displayed. You'll need that TXID to download the message for decrypting and reading.
@@ -34,6 +36,7 @@ Check for new messages. If your address has recieved a message signal, the TXID 
 ##### Example
 - `node psf-msg-wallet.js msg-nostr-check -n wallet1`
 
+-----
 
 #### Send E2EE Message
 
@@ -49,6 +52,7 @@ Send an end-to-end encrypted message to a BCH address. The 'subject' is not encr
 
 - `node psf-msg-wallet.js msg-nostr-send -n wallet1 -s test -m "This is an encrypted message" -a bitcoincash:qqfrps47nxdvak55h3x97dqmglcaczegusma02uhqt`
 
+-----
 
 #### Read E2EE Message
 
@@ -66,8 +70,13 @@ Download an E2EE message from a Nostr relay, and decrypt it using the private ke
 
 
 -----
+-----
 
 ### File Commands
+
+These commands are useful for working with the [PSFFPP](https://psffpp.com) to upload a file. A link to the file can then be included in message.
+
+-----
 
 #### Stage a File for Pinning
 
@@ -81,6 +90,7 @@ Stage a file for pinning to the [PSF IPFS network](https://psffpp.com).
 
 - `node psf-msg-wallet.js file-stage -f test.txt`
 
+-----
 
 #### Pin a Staged File
 
