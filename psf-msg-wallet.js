@@ -21,6 +21,8 @@ import MsgNostrCheck from './src/commands/msg-nostr-check.js'
 import MsgNostrRead from './src/commands/msg-nostr-read.js'
 import FileStage from './src/commands/file-stage.js'
 import FilePin from './src/commands/file-pin.js'
+import Txt2Json from './src/commands/txt2json.js'
+
 // Instantiate the subcommands
 const walletCreate = new WalletCreate()
 const walletList = new WalletList()
@@ -36,6 +38,8 @@ const msgNostrCheck = new MsgNostrCheck()
 const msgNostrRead = new MsgNostrRead()
 const fileStage = new FileStage()
 const filePin = new FilePin()
+const txt2Json = new Txt2Json()
+
 const program = new Command()
 
 program
@@ -100,11 +104,12 @@ program.command('msg-verify')
   .action(msgVerify.run)
 
 program.command('msg-nostr-send')
-  .description('Send an E2EE message to a BCH address over Nostr')
+  .description('Send an E2EE message to a BCH address over Nostr. Insert the message directly with the -m flag, or use a JSON file with -j flag.')
   .option('-a, --addr <string>', 'BCH address to send message to')
   .option('-n, --name <string>', 'wallet name to pay for message signal')
   .option('-m, --msg <string>', 'Full message, which will be encrypted')
   .option('-s, --subject <string>', 'summary message, like in an email, sent as cleartext')
+  .option('-j, --json <string>', 'File name in the files directory containing the message in JSON format')
   .action(msgNostrSend.run)
 
 program.command('msg-nostr-check')
@@ -130,5 +135,10 @@ program.command('file-pin')
   .option('-s, --size <string>', 'File size in MB. Use 1 for files less than 1MB.')
   .option('-f, --filename <string>', 'Name and extension of the file to be pinned')
   .action(filePin.run)
+
+program.command('txt2json')
+  .description('Convert a txt file to a JSON object')
+  .option('-f, --file <string>', 'full path to txt file to be converted')
+  .action(txt2Json.run)
 
 program.parseAsync(process.argv)

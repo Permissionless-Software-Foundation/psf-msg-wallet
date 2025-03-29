@@ -11,6 +11,7 @@
 // Global npm libraries
 import RetryQueue from '@chris.troutner/retry-queue'
 import BchNostr from 'bch-nostr'
+import fs from 'fs'
 
 // Local libraries
 import WalletUtil from '../lib/wallet-util.js'
@@ -80,8 +81,17 @@ class MsgNostrSend {
 
     // Exit if message not specified.
     const msg = flags.msg
-    if (!msg || msg === '') {
-      throw new Error('You must specify a message with the -m flag.')
+    if ((!msg || msg === '') && (!flags.json || flags.json === '')) {
+      throw new Error('You must specify a message with the -m flag, or use a JSON file with -j flag.')
+    }
+
+    // Exit if JSON file not found.
+    const jsonFile = flags.json
+    if (jsonFile && jsonFile !== '') {
+      const filePath = `./files/${jsonFile}`
+      if (!fs.existsSync(filePath)) {
+        throw new Error(`JSON file ${jsonFile} not found.`)
+      }
     }
 
     return true
@@ -112,7 +122,22 @@ class MsgNostrSend {
   // the encrypted message.
   async encryptMsgStr (flags) {
     try {
-      const { addr, msg } = flags
+      const { addr, json } = flags
+      let { msg } = flags
+
+      // Retrieve the message from a JSON file if specified.
+      if (json) {
+        // Read in the file.
+        const filePath = `./files/${json}`
+        msg = fs.readFileSync(filePath, 'utf8')
+
+        // Check that the JSON file contains the 'message' property.
+        const msgObj = JSON.parse(msg)
+        if (!msgObj.message) {
+          throw new Error(`JSON file ${json} must contain a 'message' property.`)
+        }
+      }
+      console.log('encryptMsgStr() clear-text message: ', msg)
 
       // Get public Key for reciever, from the blockchain.
       const publicKey = await this.retryQueue.addToQueue(this.bchWallet.getPubKey, addr)

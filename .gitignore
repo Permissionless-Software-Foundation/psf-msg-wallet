@@ -2,3 +2,4 @@ node_modules/
 .wallets/
 coverage/
 addrs.txt
+files/

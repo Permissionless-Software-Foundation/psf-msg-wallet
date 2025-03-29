@@ -49,7 +49,7 @@ class FileStage {
       console.log(`pobTxid: https://bch.loping.net/tx/${pobTxid}`)
       console.log(`claimTxid: https://bch.loping.net/tx/${claimTxid}`)
       console.log(`Check pinning status: https://pin.fullstack.cash/ipfs/pin-status/${flags.cid}`)
-      console.log(`Once pinned, your file will be accessible here:`)
+      console.log('Once pinned, your file will be accessible here:')
       console.log(`https://pin.fullstack.cash/ipfs/view/${flags.cid}`)
 
       return true

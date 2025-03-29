@@ -31,6 +31,7 @@ class MsgNostrRead {
     this.validateFlags = this.validateFlags.bind(this)
     this.msgRead = this.msgRead.bind(this)
     this.decryptMsg = this.decryptMsg.bind(this)
+    this.formatMsg = this.formatMsg.bind(this)
   }
 
   async run (flags) {
@@ -48,7 +49,11 @@ class MsgNostrRead {
       const { sender, message } = await this.msgRead(flags)
 
       // Decrypt the message
-      const clearMsg = await this.decryptMsg({ encryptedMsgHex: message })
+      let clearMsg = await this.decryptMsg({ encryptedMsgHex: message })
+      // console.log('clearMsg (1): ', clearMsg)
+
+      // Format the message
+      clearMsg = await this.formatMsg(clearMsg)
 
       console.log(`Sender: ${sender}`)
       console.log(`Message:\n${clearMsg}`)
@@ -116,6 +121,24 @@ class MsgNostrRead {
       throw err
     }
   }
-}
 
+  // Format the message. Test to see if the message is a JSON object. If it is,
+  // parse the JSON and return the message component. If it is not JSON, then
+  // return the message as is.
+  formatMsg (msg) {
+    try {
+      let msgOut = ''
+
+      try {
+        msgOut = JSON.parse(msg)
+        return msgOut.message
+      } catch (err) {
+        return msg
+      }
+    } catch (err) {
+      console.error('Error in formatMsg(): ', err)
+      throw err
+    }
+  }
+}
 export default MsgNostrRead
