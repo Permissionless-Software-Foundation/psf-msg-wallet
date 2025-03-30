@@ -43,7 +43,9 @@ Check for new messages. If your address has recieved a message signal, the TXID 
 
 Send an end-to-end encrypted message to a BCH address. The 'subject' is not encrypted, but the message contents are. The receiver will need to have made at least one transaction with their address in order to send them a message. That way, their public key can be retrieved from the blockchain.
 
-The command requires either the `-m` or the `-j` flag. `-m` is used to send a simple message from the command line. The `-j` flag allows for large complex messages with text and data to be passed. `-j` allows you to use a JSON files in the `files/` directory as a message. It must contain a `messages` property, but can include other properties for passing data. 
+The command requires either the `-m` or the `-j` flag. `-m` is used to send a simple message from the command line. The `-j` flag allows for large complex messages with text and data to be passed. `-j` allows you to use a JSON files in the `files/` directory as a message. It must contain a `messages` property, but can include other properties for passing data.
+
+Optionally, you can attach JSON data to the message usin the `-d` flag. The data must exist in a file in the `files/` directory. It must be formatted at JSON with a `data` property. The value of the `data` property will be attached to the data section of the encrypted message.
 
 ##### Arguments
 - `-n` - flag to specify the wallet paying for the message signal (required).
@@ -51,13 +53,19 @@ The command requires either the `-m` or the `-j` flag. `-m` is used to send a si
 - `-s` - An un-encrypted subject line (optional).
 - `-m` - A string of text to send as a message. This will be encrypted with the receivers public key.
 - `-j` - The file name in the `files/` directory containing the message.
+- `-d` - The file name in the `files/` directory containing data to attach to the message (optional).
 
 
 ##### Example
 
-- `node psf-msg-wallet.js msg-nostr-send -n wallet1 -s test -m "This is an encrypted message" -a bitcoincash:qqfrps47nxdvak55h3x97dqmglcaczegusma02uhqt`
+- Send a simple one-line message:
+  - `node psf-msg-wallet.js msg-nostr-send -n wallet1 -s test -m "This is an encrypted message" -a bitcoincash:qqfrps47nxdvak55h3x97dqmglcaczegusma02uhqt`
 
-- `node psf-msg-wallet.js msg-nostr-send -n wallet1 -s test -j test-msg.json -a bitcoincash:qqfrps47nxdvak55h3x97dqmglcaczegusma02uhqt`
+- Send a long message from a JSON file:
+  - `node psf-msg-wallet.js msg-nostr-send -n wallet1 -s test -j test-msg.json -a bitcoincash:qqfrps47nxdvak55h3x97dqmglcaczegusma02uhqt`
+
+- Send a long message including JSON data:
+  - `node psf-msg-wallet.js msg-nostr-send -n wallet1 -s test -j test-msg.json -d data.json -a bitcoincash:qqfrps47nxdvak55h3x97dqmglcaczegusma02uhqt`
 
 -----
 
@@ -81,11 +89,16 @@ Download an E2EE message from a Nostr relay, and decrypt it using the private ke
 ##### Arguments
 
 - `-n` - specify the wallet to check for messages (required).
-- `-t` - The TXID of the message signal. This is provided by the `msg-check-nostr` command.
+- `-t` - The TXID of the message signal. This is provided by the `msg-check-nostr` command (required).
+- `-d` - Display any JSON data attached to the message (optional).
 
 ##### Example
 
-- `node psf-msg-wallet.js msg-nostr-read -n wallet1 -t e7537fbeebb367e09793286f636ec6a4a0b04ba556ec90691b5e0107d18cc5cb`
+- Read a message:
+  - `node psf-msg-wallet.js msg-nostr-read -n wallet1 -t e7537fbeebb367e09793286f636ec6a4a0b04ba556ec90691b5e0107d18cc5cb`
+
+- Read a message with JSON data, and display that data:
+  - `node psf-msg-wallet.js msg-nostr-read -n wallet1 -d -t e7537fbeebb367e09793286f636ec6a4a0b04ba556ec90691b5e0107d18cc5cb`
 
 
 

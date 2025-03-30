@@ -32,6 +32,7 @@ class MsgNostrRead {
     this.msgRead = this.msgRead.bind(this)
     this.decryptMsg = this.decryptMsg.bind(this)
     this.formatMsg = this.formatMsg.bind(this)
+    this.handleData = this.handleData.bind(this)
   }
 
   async run (flags) {
@@ -49,14 +50,17 @@ class MsgNostrRead {
       const { sender, message } = await this.msgRead(flags)
 
       // Decrypt the message
-      let clearMsg = await this.decryptMsg({ encryptedMsgHex: message })
+      const clearMsg = await this.decryptMsg({ encryptedMsgHex: message })
       // console.log('clearMsg (1): ', clearMsg)
 
       // Format the message
-      clearMsg = await this.formatMsg(clearMsg)
+      const msgStr = await this.formatMsg(clearMsg)
 
-      console.log(`Sender: ${sender}`)
-      console.log(`Message:\n${clearMsg}`)
+      console.log(`\n\nSender: ${sender}`)
+      console.log(`\nMessage:\n${msgStr}`)
+
+      // Display information about data attached to the message.
+      this.handleData(clearMsg, flags)
 
       return clearMsg
     } catch (err) {
@@ -137,6 +141,30 @@ class MsgNostrRead {
       }
     } catch (err) {
       console.error('Error in formatMsg(): ', err)
+      throw err
+    }
+  }
+
+  // Display information about data attached to the message.
+  handleData (clearMsg, flags) {
+    try {
+      const msgObj = JSON.parse(clearMsg)
+
+      if (!msgObj.data) {
+        console.log('\n\nData: No data attached to the message.')
+        return
+      } else {
+        if (!flags.data) {
+          console.log('\n\nData: There is data attached to the message.')
+        } else {
+          const dataStr = JSON.stringify(msgObj.data, null, 2)
+          console.log('\n\nData: \n', dataStr)
+        }
+      }
+
+      return true
+    } catch (err) {
+      console.error('Error in handleData(): ', err)
       throw err
     }
   }

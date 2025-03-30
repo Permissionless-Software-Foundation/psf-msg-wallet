@@ -122,7 +122,7 @@ class MsgNostrSend {
   // the encrypted message.
   async encryptMsgStr (flags) {
     try {
-      const { addr, json } = flags
+      const { addr, json, data } = flags
       let { msg } = flags
 
       // Retrieve the message from a JSON file if specified.
@@ -137,6 +137,28 @@ class MsgNostrSend {
           throw new Error(`JSON file ${json} must contain a 'message' property.`)
         }
       }
+
+      // Retrieve the data from a JSON file if specified.
+      if (data) {
+        // Read in the file.
+        const filePath = `./files/${data}`
+        const dataStr = fs.readFileSync(filePath, 'utf8')
+
+        // Check that the JSON file contains the 'data' property.
+        const dataObj = JSON.parse(dataStr)
+        if (!dataObj.data) {
+          throw new Error(`JSON file ${data} must contain a 'data' property.`)
+        }
+
+        // Combine the data and message JSON data.
+        const msgObj = JSON.parse(msg)
+        const combindObj = {
+          message: msgObj.message,
+          data: dataObj.data
+        }
+        msg = JSON.stringify(combindObj)
+      }
+
       console.log('encryptMsgStr() clear-text message: ', msg)
 
       // Get public Key for reciever, from the blockchain.
