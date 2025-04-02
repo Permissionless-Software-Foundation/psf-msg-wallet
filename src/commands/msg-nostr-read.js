@@ -155,7 +155,7 @@ class MsgNostrRead {
         return
       } else {
         if (!flags.data) {
-          console.log('\n\nData: There is data attached to the message.')
+          console.log('\n\nData: There is data attached to the message. Use the -d flag to display it.')
         } else {
           const dataStr = JSON.stringify(msgObj.data, null, 2)
           console.log('\n\nData: \n', dataStr)
