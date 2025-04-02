@@ -93,12 +93,12 @@ class MsgNostrCheck {
   // Display table in a table on the command line using cli-table.
   displayTable (data) {
     const table = new Table({
-      head: ['Subject', 'Transaction ID'],
-      colWidths: [25, 80]
+      head: ['Transaction ID', 'Subject'],
+      colWidths: [70, 80]
     })
 
     for (let i = 0; i < data.length; i++) {
-      const _data = [data[i].subject, data[i].txid]
+      const _data = [data[i].txid, data[i].subject]
       table.push(_data)
     }
 
