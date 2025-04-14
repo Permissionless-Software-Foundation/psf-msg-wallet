@@ -127,7 +127,7 @@ program.command('msg-nostr-read')
 
 program.command('file-stage')
   .description('Upload and stage a file for pinning to the PSFFPP network')
-  .option('-f, --filePath <string>', 'full path to file to be uploaded')
+  .option('-f, --fileName <string>', 'name of file in the files/ directory.')
   .action(fileStage.run)
 
 program.command('file-pin')

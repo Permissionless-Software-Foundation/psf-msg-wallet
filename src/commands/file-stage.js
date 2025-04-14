@@ -12,6 +12,11 @@ import FormData from 'form-data'
 import WalletUtil from '../lib/wallet-util.js'
 import config from '../../config/index.js'
 
+// Hack to get __dirname back.
+// https://blog.logrocket.com/alternatives-dirname-node-js-es-modules/
+import * as url from 'url'
+const __dirname = url.fileURLToPath(new URL('.', import.meta.url))
+
 class FileStage {
   constructor () {
     // Encapsulate Dependencies
@@ -51,9 +56,9 @@ class FileStage {
 
   validateFlags (flags = {}) {
     // Exit if file is not specified.
-    const filePath = flags.filePath
-    if (!filePath || filePath === '') {
-      throw new Error('You must specify a file path with the -f flag.')
+    const fileName = flags.fileName
+    if (!fileName || fileName === '') {
+      throw new Error('You must specify a file name with the -f flag.')
     }
 
     return true
@@ -61,7 +66,8 @@ class FileStage {
 
   async uploadFile (flags = {}) {
     try {
-      const { filePath } = flags
+      const { fileName } = flags
+      const filePath = `${__dirname}../../files/${fileName}`
       console.log('Uploading file: ', filePath)
 
       // Create a read stream from the file
@@ -96,7 +102,8 @@ class FileStage {
   // Returns the size of the file in Megabytes.
   async getFileSize (flags = {}) {
     try {
-      const { filePath } = flags
+      const { fileName } = flags
+      const filePath = `${__dirname}../../files/${fileName}`
 
       const stats = fs.statSync(filePath)
       const fileSizeInBytes = stats.size
